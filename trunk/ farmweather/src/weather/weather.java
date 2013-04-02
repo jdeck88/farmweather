@@ -11,11 +11,7 @@ import java.util.*;
 
 
 /**
- * Created by IntelliJ IDEA.
- * User: biocode
- * Date: Jan 15, 2010
- * Time: 2:23:14 PM
- * To change this template use File | Settings | File Templates.
+The weather class controls the functions of the application
  */
 public class weather {
     private static String year = getThisYear();
