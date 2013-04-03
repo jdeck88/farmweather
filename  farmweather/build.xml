@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="weather" default="all">
+
+
+    <!-- BJS: instead of requiring the file below, just add the path to the JDK -->
+    <property name="jdk.home.1.6" value="/usr"/>
+
+    <!-- Uncomment the following property if no tests compilation is needed -->
+    <!--
+   <property name="skip.tests" value="true"/>
+    -->
+
+    <!-- Compiler options -->
+
+    <property name="compiler.debug" value="on"/>
+    <property name="compiler.generate.no.warnings" value="off"/>
+    <property name="compiler.args" value=""/>
+    <property name="compiler.max.memory" value="128m"/>
+    <patternset id="ignored.files">
+        <exclude name="**/CVS/**"/>
+        <exclude name="**/SCCS/**"/>
+        <exclude name="**/RCS/**"/>
+        <exclude name="**/rcs/**"/>
+        <exclude name="**/.DS_Store/**"/>
+        <exclude name="**/.svn/**"/>
+        <exclude name="**/.pyc/**"/>
+        <exclude name="**/.pyo/**"/>
+        <exclude name="**/*.pyc/**"/>
+        <exclude name="**/*.pyo/**"/>
+        <exclude name="**/.git/**"/>
+        <exclude name="**/*.hprof/**"/>
+        <exclude name="**/_svn/**"/>
+        <exclude name="**/.hg/**"/>
+    </patternset>
+    <patternset id="library.patterns">
+        <include name="*.zip"/>
+        <include name="*.war"/>
+        <include name="*.egg"/>
+        <include name="*.ear"/>
+        <include name="*.swc"/>
+        <include name="*.jar"/>
+    </patternset>
+    <patternset id="compiler.resources">
+        <include name="**/?*.properties"/>
+        <include name="**/?*.xml"/>
+        <include name="**/?*.gif"/>
+        <include name="**/?*.png"/>
+        <include name="**/?*.jpeg"/>
+        <include name="**/?*.jpg"/>
+        <include name="**/?*.html"/>
+        <include name="**/?*.dtd"/>
+        <include name="**/?*.tld"/>
+        <include name="**/?*.ftl"/>
+    </patternset>
+
+    <!-- JDK definitions -->
+
+    <property name="jdk.bin.1.6" value="${jdk.home.1.6}/bin"/>
+    <path id="jdk.classpath.1.6">
+    </path>
+
+    <property name="project.jdk.home" value="${jdk.home.1.6}"/>
+    <property name="project.jdk.bin" value="${jdk.bin.1.6}"/>
+    <property name="project.jdk.classpath" value="jdk.classpath.1.6"/>
+
+
+    <!-- Project Libraries -->
+
+    <!-- BJS: instead of listing each JAR, switched this to use the "fileset" mechanism -->
+    <path id="library.lib.classpath">
+        <fileset dir="${basedir}/lib">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+
+    <!-- Application Server Libraries -->
+
+    <!-- Modules -->
+
+
+    <!-- Module Biscicol -->
+
+    <dirname property="module.weather.basedir" file="${ant.file}"/>
+
+
+    <property name="module.jdk.home.weather" value="${project.jdk.home}"/>
+    <property name="module.jdk.bin.weather" value="${project.jdk.bin}"/>
+    <property name="module.jdk.classpath.weather" value="${project.jdk.classpath}"/>
+
+    <property name="compiler.args.weather" value="${compiler.args}"/>
+
+    <property name="weather.output.dir" value="${module.weather.basedir}/out/production/Biscicol"/>
+    <property name="weather.testoutput.dir" value="${module.weather.basedir}/out/test/Biscicol"/>
+
+    <path id="weather.module.bootclasspath">
+        <!-- Paths to be included in compilation bootclasspath -->
+    </path>
+
+    <path id="weather.module.production.classpath">
+        <path refid="${module.jdk.classpath.weather}"/>
+        <path refid="library.lib.classpath"/>
+    </path>
+
+
+    <path id="weather.runtime.production.module.classpath">
+        <pathelement location="${weather.output.dir}"/>
+        <path refid="library.lib.classpath"/>
+    </path>
+
+    <path id="weather.module.classpath">
+        <path refid="${module.jdk.classpath.weather}"/>
+        <pathelement location="${weather.output.dir}"/>
+        <path refid="library.lib.classpath"/>
+    </path>
+
+    <path id="weather.runtime.module.classpath">
+        <pathelement location="${weather.output.dir}"/>
+        <pathelement location="${weather.testoutput.dir}"/>
+        <path refid="library.lib.classpath"/>
+    </path>
+
+
+    <patternset id="excluded.from.module.weather">
+        <patternset refid="ignored.files"/>
+    </patternset>
+
+    <patternset id="excluded.from.compilation.weather">
+        <patternset refid="excluded.from.module.weather"/>
+    </patternset>
+
+    <path id="weather.module.sourcepath">
+        <dirset dir="/">
+            <include name="src"/>
+        </dirset>
+    </path>
+
+
+    <target name="compile.module.weather" depends="compile.module.weather.production"
+            description="Compile module Weather"/>
+
+    <target name="compile.module.weather.production" description="Compile module Biscicol; production classes">
+        <mkdir dir="${weather.output.dir}"/>
+        <javac destdir="${weather.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}"
+               srcdir="src" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.weather}/javac">
+            <compilerarg line="${compiler.args.weather}"/>
+            <bootclasspath refid="weather.module.bootclasspath"/>
+            <classpath refid="weather.module.production.classpath"/>
+            <patternset refid="excluded.from.compilation.weather"/>
+        </javac>
+
+        <copy todir="${weather.output.dir}">
+            <fileset dir="${module.weather.basedir}/src">
+                <patternset refid="compiler.resources"/>
+                <type type="file"/>
+            </fileset>
+        </copy>
+    </target>
+
+
+    <target name="clean.module.weather" description="cleanup module">
+        <delete dir="${weather.output.dir}"/>
+        <delete dir="${weather.testoutput.dir}"/>
+    </target>
+
+    <target name="init" description="Build initialization">
+        <!-- Perform any build initialization in this target -->
+    </target>
+
+    <target name="clean" depends="clean.module.weather" description="cleanup all"/>
+
+    <target name="build.modules" depends="init, clean, compile.module.weather, war" description="build all modules"/>
+
+    <target name="war" depends="compile.module.weather.production">
+        <war destfile="dist/weather.war" webxml="web/WEB-INF/web.xml">
+            <fileset dir="web"/>
+            <lib dir="lib" excludes="servlet-api.jar"/>
+            <classes dir="${weather.output.dir}"/>
+            <classes dir="" includes="xsl/*.*"/>
+            <classes dir="" includes="weathersettings.props"/>
+        </war>
+    </target>
+
+
+    <target name="all" depends="build.modules" description="build all"/>
+
+</project>

@@ -1,6 +1,7 @@
 package weather;
 
 import au.com.bytecode.opencsv.CSVReader;
+import com.sun.org.apache.bcel.internal.generic.RETURN;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,11 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- * Created by IntelliJ IDEA.
- * User: biocode
- * Date: Jan 15, 2010
- * Time: 4:02:18 PM
- * To change this template use File | Settings | File Templates.
+ * The machinery for processing wunderground weather
  */
 public class ProcessWeather {
     // declare maps to hold data
@@ -31,6 +28,7 @@ public class ProcessWeather {
     private String station;
     private Double avgTempLast7;
     private Double avgHighTempLast7;
+    private String description;
 
     private String tsum200ReachedDate;
     private int remainingInvalid = 0;
@@ -62,12 +60,25 @@ public class ProcessWeather {
         tsum200ReachedDate = tSum200ReachedDate();
     }
 
-    public String printSummary(String id) {
-        String ret;
-        //<div style='display:none;font-size:11pt;' id="1"><br><li>Tsum200: 192.78</li><li>Precip Since Jan1: 2.43 in.</li><li>Precip last 7 days: 0.54 in.</li><li>Avg Temp last 7 days: 46.86 deg F.</li></div>
-        ret = "<div style='display:none;font-size:11pt;' id='" + id + "'><b>" + this.station + "</b><br>";
+    public String printXMLSummary(String id, String description) {
+        String xmlResults = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
+                "<Module>\n" +
+                "<ModulePrefs title=\"2010 ProcessWeather Calculator for Oregon Sites\"\n" +
+                "    title_url=\"http://groups.google.com/group/Google-Gadgets-API\"\n" +
+                "    height=\"250\"\n" +
+                "    author=\"John Deck\"\n" +
+                "    author_email=\"jdeck88@gmail.com\"/> \n" +
+                "    <Content type=\"html\">\n" +
+                "    <![CDATA[";
+        xmlResults += printHTMLSummary(id, description);
+        xmlResults += "]]>" +
+                "</Content>" +
+                "</Module>";
+        return xmlResults;
+    }
 
-        // tsum 200 line
+    private String printContents(String id, String description) {
+        String ret = "";
         ret += "<li>Tsum200: " + TSUM200;
         if (tsum200ReachedDate != null) {
             ret += " (reached " + tsum200ReachedDate + ")";
@@ -88,9 +99,15 @@ public class ProcessWeather {
 
 
         ret += "<li onclick=\"var newWindow = window.open('http://www.wunderground.com/weatherstation/WXDailyHistory.asp?&graphspan=year&ID=" +
-                id+
-                "','_blank');\">click for station data</li>";//>Station Data From " +
-                //id + "</a></li>";
+                id +
+                "','_blank');\">click for " + this.station + " data</li>";//>Station Data From " +
+        return ret;
+    }
+
+    public String printHTMLSummary(String id, String description) {
+        String ret;
+        ret = "<div class='contents' id='" + id + "'><b>" + description + " (" + id + ")</b><br> ";
+        ret += printContents(id,description);
         ret += "</div>";
         return ret;
     }
@@ -160,19 +177,19 @@ public class ProcessWeather {
         // sort based on name lets us get last n dates
         // IntuitiveStringComparator sorts logically (e.g. Row1, Row2, Row10)
         Collections.sort(strArr, new IntuitiveStringComparator());
-        
+
         for (int i = strArr.size() - days; i < strArr.size(); i++) {
 
             if (i > 0) {
 
-                  try {
+                try {
                     String[] temp = ((String) strArr.get(i)).split(":");
                     sum += (Double) Double.parseDouble(temp[1]);
                 } catch (Exception e) {
                     System.out.println("trouble fetching some data for " + station);
                     e.printStackTrace();
                 }
-              }
+            }
         }
         Double avg = sum / days;
         return round2(avg);
@@ -251,6 +268,7 @@ public class ProcessWeather {
         int invalid = 0;
         try {
             while ((nextLine = reader.readNext()) != null) {
+
                 // nextLine[] is an array of values from the line
                 try {
                     String date = nextLine[DATE];
