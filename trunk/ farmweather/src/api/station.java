@@ -14,9 +14,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- * REST interface for creating and minting BCIDs, to be called from the interface.
- * Security systems need to be configured to only allow access to this service
- * once a user has been authenticated.
+ * REST interface for calling weather station data
  */
 @Path("")
 public class station {
@@ -24,10 +22,9 @@ public class station {
     }
 
     /**
-     * Populate select boxes for BCID service options
      *
      * @param station
-     * @return String with JSON response
+     * @return String with HTML response
      */
     @GET
     @Produces(MediaType.TEXT_HTML)
@@ -50,10 +47,9 @@ public class station {
     }
 
     /**
-     * Populate select boxes for BCID service options
      *
      * @param station
-     * @return String with JSON response
+     * @return String with XML response
      */
     @GET
     @Produces(MediaType.TEXT_XML)
