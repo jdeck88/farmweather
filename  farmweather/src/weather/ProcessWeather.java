@@ -98,15 +98,17 @@ public class ProcessWeather {
         }
 
 
-        ret += "<li onclick=\"var newWindow = window.open('http://www.wunderground.com/weatherstation/WXDailyHistory.asp?&graphspan=year&ID=" +
-                id +
-                "','_blank');\">click for " + this.station + " data</li>";//>Station Data From " +
+       // ret += "<li onclick=\"var newWindow = window.open('http://www.wunderground.com/weatherstation/WXDailyHistory.asp?&graphspan=year&ID=" +
+       //         id +
+       //         "','_blank');\">click for " + this.station + " data</li>";//>Station Data From " +
         return ret;
     }
 
     public String printHTMLSummary(String id, String description) {
         String ret;
-        ret = "<div class='contents' id='" + id + "'><b>" + description + " (" + id + ")</b><br> ";
+        ret = "<div class='contents' id='" + id + "'><b>" + description + " (" +
+                "<a href='http://www.wunderground.com/weatherstation/WXDailyHistory.asp?&graphspan=year&ID=" + id + "'>" + id +
+                ")</b><br> ";
         ret += printContents(id,description);
         ret += "</div>";
         return ret;

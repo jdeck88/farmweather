@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>Oregon T-Sum 200 Weather Calculator</title>
+
+  <script type='text/javascript' src='http://code.jquery.com/jquery-1.6.3.js'></script>
+
+<script type='text/javascript'>
+    $(window).load(function(){
+var stations= {
+" -- Willamette Valley --":"",
+"Eugene (Mahlen Sweet Airport)":"KEUG",
+"Junction City, Near Meadowview":"MD5719",
+"Eugene-Springfield":"KORSPRIN10",
+"Junction City":"KORJUNCT4",
+"Monmouth, Dallas":"KORDALLA4",
+"Corvallis":"KORCORVA4",
+"Scio":"KORTURNE1",
+"Silverton":"KORAUMSV3",
+"Albany":"KORALBAN30",
+" -- South Coast -- ":"",
+"Myrtle Point":"KORMYRTL5",
+"Coquille":"KORCOQUI3",
+"Coos Bay":"KORCOOSB9",
+"Bandon ":"KORBANDO2",
+"Port Orford":"KORPORT02",
+" -- Douglas County -- ":"",
+"Roseburg  (downtown airport)":"KRBG",
+"Myrtle Creek":"KORMYRTL13",
+"Riddle":"KORRIDDL2",
+"Elkton":"KORELKTO2",
+"Sutherlin":"KORSUTHE2",
+"Garden Valley (west of Roseburg)":"KORROSEB4",
+"Cottage Grove":"KORCOTTA5",
+" -- Southern Oregon --":"",
+"Grants Pass":"KORGRANT4",
+"White City":"KORWHITE4",
+};
+        for (var text in stations) {
+            var val = stations[text];
+            $('<option/>').val(val).text(text).appendTo($('#selector'))
+        };
+    });
+
+    function httpGet(a,b) {
+        if (a=="") {
+            alert('select a valid option');
+            return;
+        }
+        var xmlHttp = null;
+        theUrl = "/weather/api/stationHTML/"+a+"/"+b;
+        xmlHttp = new XMLHttpRequest();
+        xmlHttp.open( "GET", theUrl, false );
+        xmlHttp.send( null );
+        $("#contents").append(xmlHttp.responseText);
+        //return xmlHttp.responseText;
+    }
+
+    function clearResults() {
+        $("#contents").html("");
+    }
+</script>
+
+</head>
+<body>
+<h2>Oregon T-sum200/ Weather Calculator</h2>
+
+<select id="selector" name="selector"></select>
+<input type=submit name=submit onclick='httpGet($("#selector").val(),$("#selector option:selected").text())';>
+<br><a href='#' onclick='clearResults();'>Clear results</a>
+
+<p>
+
+<div id="contents"></div> 
+</body>
+
+</html>
