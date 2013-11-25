@@ -21,6 +21,7 @@ public class ProcessWeather {
     private HashMap<String, Double> precipMap = new HashMap<String, Double>();
     private HashMap<String, Double> avgTempMap = new HashMap<String, Double>();
     private HashMap<String, Double> highTempMap = new HashMap<String, Double>();
+    private String dateOfData = "";
 
     private Double TSUM200;
     private Double precipLast7;
@@ -52,6 +53,7 @@ public class ProcessWeather {
     public ProcessWeather(URL url, String station) {
         this.station = station;
         fetchData(url);
+        dateOfData = this.getDateOfData();
         TSUM200 = tSum200();
         precipLast7 = precipLast(7);
         precipAll = precipAll();
@@ -79,12 +81,13 @@ public class ProcessWeather {
 
     private String printContents(String id, String description) {
         String ret = "";
-        ret += "<li>Tsum200: " + TSUM200;
+        ret += "<li>Using data as of: " + dateOfData;
+
+        ret += "<li>T-SUM 200: " + TSUM200;
         if (tsum200ReachedDate != null) {
             ret += " (reached " + tsum200ReachedDate + ")";
         }
         ret += "</li>";
-
         ret += "<li>Precip Since Jan1: " + precipAll + " in.</li>";
         ret += "<li>Precip last 7 days: " + precipLast7 + " in.</li>";
         ret += "<li>Avg Temp last 7 days: " + avgTempLast7 + " deg F.</li>";
@@ -98,9 +101,9 @@ public class ProcessWeather {
         }
 
 
-       // ret += "<li onclick=\"var newWindow = window.open('http://www.wunderground.com/weatherstation/WXDailyHistory.asp?&graphspan=year&ID=" +
-       //         id +
-       //         "','_blank');\">click for " + this.station + " data</li>";//>Station Data From " +
+        // ret += "<li onclick=\"var newWindow = window.open('http://www.wunderground.com/weatherstation/WXDailyHistory.asp?&graphspan=year&ID=" +
+        //         id +
+        //         "','_blank');\">click for " + this.station + " data</li>";//>Station Data From " +
         return ret;
     }
 
@@ -108,8 +111,8 @@ public class ProcessWeather {
         String ret;
         ret = "<div class='contents' id='" + id + "'><b>" + description + " (" +
                 "<a href='http://www.wunderground.com/weatherstation/WXDailyHistory.asp?&graphspan=year&ID=" + id + "'>" + id +
-                ")</b><br> ";
-        ret += printContents(id,description);
+                "</a>)</b><br> ";
+        ret += printContents(id, description);
         ret += "</div>";
         return ret;
     }
@@ -150,6 +153,10 @@ public class ProcessWeather {
             return null;
         }
 
+    }
+
+    public String getDateOfData() {
+        return dateOfData;
     }
 
     public Double tSum200() {
@@ -274,6 +281,8 @@ public class ProcessWeather {
                 // nextLine[] is an array of values from the line
                 try {
                     String date = nextLine[DATE];
+                    if (!date.trim().equals("")  && !date.trim().equals("<br>"))
+                        dateOfData = date;
                     Double highCelsiusTemp = celsius(Double.parseDouble(nextLine[HIGHTEMP]));
                     Double lowCelsiusTemp = celsius(Double.parseDouble(nextLine[LOWTEMP]));
                     Double highTemp = Double.parseDouble(nextLine[HIGHTEMP]);
