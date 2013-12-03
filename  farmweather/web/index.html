@@ -2,13 +2,12 @@
 <html>
 <head>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-  <title>Oregon T-Sum 200 Weather Calculator</title>
+  <title>Oregon T-SUM 200 Weather Calculator</title>
 
   <script type='text/javascript' src='http://code.jquery.com/jquery-1.6.3.js'></script>
 
 <script type='text/javascript'>
     $(window).load(function(){
-
 var stations= {
 " -- Willamette Valley --":"",
 "Junction City, Near Meadowview":"MD5719",
@@ -63,7 +62,7 @@ var stations= {
 
 </head>
 <body>
-<h2>Oregon T-sum200/ Weather Calculator</h2>
+<h2>Oregon T-SUM 200/ Weather Calculator</h2>
 
 <select id="selector" name="selector"></select>
 <input type=submit name=submit onclick='httpGet($("#selector").val(),$("#selector option:selected").text())';>
@@ -71,7 +70,7 @@ var stations= {
 
 <p>
 
-<div id="contents"></div> 
+<div id="contents"></div>
 </body>
 
 </html>
