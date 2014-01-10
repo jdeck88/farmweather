@@ -258,7 +258,7 @@ public class ProcessWeather {
     private void fetchData(URL url) {
         //HashMap<String, Double> map = new HashMap<String, Double>();
         //HashMap<String, Double> precipmap = new HashMap<String, Double>();
-
+        System.out.println(url.toString());
         CSVReader reader = null;
         BufferedReader in = null;
         try {
