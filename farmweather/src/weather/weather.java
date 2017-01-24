@@ -1,6 +1,7 @@
 package weather;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -50,13 +51,13 @@ public class weather {
      * Main function used for local testing
      * @param args
      */
-    public static void main(String args[]) {
+    public static void main(String args[]) throws IOException {
 
-        String station = "MD5719";
+        String station = "KORSPRIN10";
         String description = station;
         try {
             ProcessWeather w = new ProcessWeather(
-                    new URL("http://www.wunderground.com/weatherstation/WXDailyHistory.asp?ID=" + station + "&year=" + year + "&graphspan=year&format=1"),
+                    new URL("https://www.wunderground.com/weatherstation/WXDailyHistory.asp?ID=" + station + "&year=" + year + "&graphspan=year&format=1"),
                     description);
             System.out.println(w.printHTMLSummary(station,"Testing"));
 

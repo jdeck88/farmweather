@@ -3,9 +3,10 @@ package weather;
 import au.com.bytecode.opencsv.CSVReader;
 import com.sun.org.apache.bcel.internal.generic.RETURN;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import javax.net.ssl.HttpsURLConnection;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -50,8 +51,10 @@ public class ProcessWeather {
         return TSUM200;
     }
 
-    public ProcessWeather(URL url, String station) {
+    public ProcessWeather(URL url, String station) throws IOException {
         this.station = station;
+
+        //test(url);
         fetchData(url);
         dateOfData = this.getDateOfData();
         TSUM200 = tSum200();
@@ -255,48 +258,84 @@ public class ProcessWeather {
         return result;
     }
 
-    private void fetchData(URL url) {
-        //HashMap<String, Double> map = new HashMap<String, Double>();
-        //HashMap<String, Double> precipmap = new HashMap<String, Double>();
-        System.out.println(url.toString());
-        CSVReader reader = null;
-        BufferedReader in = null;
-        try {
-            in = new BufferedReader(new InputStreamReader(url.openStream()));
-        } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+    /**
+     * Method for testing connection only
+     *
+     * @param url
+     *
+     * @throws IOException
+     */
+    private void test(URL url) throws IOException {
 
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        String inputLine;
+
+        while ((inputLine = in.readLine()) != null)
+            System.out.println(inputLine);
+        in.close();
+
+    }
+
+    /**
+     * Fetch the data from source
+     *
+     * @param url
+     *
+     * @throws IOException
+     */
+    private void fetchData(URL url) throws IOException {
+
+        System.out.println(url.toString());
+
+        CSVReader reader = null;
+
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
         if (url != null) {
             reader = new CSVReader(in);
         }
 
-
         String[] nextLine;
-        Double validDegreeday, validAvgtemp, validLow, validHigh;
+        Double validDegreeday =0.0;
+        Double validAvgtemp =0.0;
+        Double validLow =0.0;
+        Double validHigh =0.0;
+        Double validPrecip = 0.0;
+        Double validDegreeDay = 0.0;
         int invalid = 0;
         try {
             while ((nextLine = reader.readNext()) != null) {
 
                 // nextLine[] is an array of values from the line
                 try {
-                    String date = nextLine[DATE];
-                    if (!date.trim().equals("")  && !date.trim().equals("<br>"))
-                        dateOfData = date;
-                    Double highCelsiusTemp = celsius(Double.parseDouble(nextLine[HIGHTEMP]));
-                    Double lowCelsiusTemp = celsius(Double.parseDouble(nextLine[LOWTEMP]));
-                    Double highTemp = Double.parseDouble(nextLine[HIGHTEMP]);
-                    Double lowTemp = Double.parseDouble(nextLine[HIGHTEMP]);
-                    Double precip = Double.parseDouble(nextLine[PRECIP]);
-                    Double avgtemp = Double.parseDouble(nextLine[AVGTEMP]);
-                    Double degreeday = degreeday(highCelsiusTemp, lowCelsiusTemp);
+                    if (isRow(nextLine)) {
 
-                    // store valid values for use on next line if it is not valid
-                    if (isValid(nextLine)) {
-                        validDegreeday = degreeday;
-                        validAvgtemp = avgtemp;
-                        validLow = lowTemp;
-                        validHigh = highTemp;
+                        String date = nextLine[DATE];
+                        if (!date.trim().equals("") && !date.trim().equals("<br>"))
+                            dateOfData = date;
+
+                        Double highCelsiusTemp = celsius(Double.parseDouble(nextLine[HIGHTEMP]));
+                        Double lowCelsiusTemp = celsius(Double.parseDouble(nextLine[LOWTEMP]));
+                        Double highTemp = Double.parseDouble(nextLine[HIGHTEMP]);
+                        Double lowTemp = Double.parseDouble(nextLine[HIGHTEMP]);
+                        Double precip = Double.parseDouble(nextLine[PRECIP]);
+                        Double avgtemp = Double.parseDouble(nextLine[AVGTEMP]);
+                        Double degreeday = degreeday(highCelsiusTemp, lowCelsiusTemp);
+
+                        if (isValid(nextLine)) {
+                            // store valid values for use on next line if it is not valid
+                            validDegreeday = degreeday;
+                            validAvgtemp = avgtemp;
+                            validLow = lowTemp;
+                            validHigh = highTemp;
+                            validPrecip = precip;
+                            validDegreeDay = degreeday;
+                        } else {
+                            invalid++;
+                            numDaysInvalid++;
+                        }
 
                         // loop invalid dates to populate good values from this run
                         if (invalid > 0) {
@@ -320,10 +359,10 @@ public class ProcessWeather {
                                 cal = Calendar.getInstance();
                                 cal.add(Calendar.DATE, datecounter);
                                 String thisdate = dateFormat.format(cal.getTime());
-                                degreedayMap.put(thisdate, degreeday);
-                                precipMap.put(thisdate, precip);
-                                avgTempMap.put(thisdate, avgtemp);
-                                highTempMap.put(thisdate, highTemp);
+                                degreedayMap.put(thisdate, validDegreeDay);
+                                precipMap.put(thisdate, validPrecip);
+                                avgTempMap.put(thisdate, validAvgtemp);
+                                highTempMap.put(thisdate, validHigh);
 
                             }
                         }
@@ -334,18 +373,13 @@ public class ProcessWeather {
                         highTempMap.put(date, highTemp);
 
                         invalid = 0;
-                    } else {
-                        invalid++;
-                        numDaysInvalid++;
                     }
 
                 } catch (ArrayIndexOutOfBoundsException e) {
-
-
+                    e.printStackTrace();
                 } catch (NumberFormatException e) {
-
+                    e.printStackTrace();
                 }
-
             }
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
@@ -359,6 +393,7 @@ public class ProcessWeather {
      * -200 and lowtemps of 200, catch for this case and tell us its an invalid row
      *
      * @param row
+     *
      * @return
      */
     private boolean isValid(String[] row) {
@@ -371,6 +406,20 @@ public class ProcessWeather {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Test if this is an actual row
+     *
+     * @param row
+     *
+     * @return
+     */
+    private boolean isRow(String[] row) {
+        if (row[DATE].equals("") || row[DATE].equals("<br>") || row[DATE].equals("Date"))
+            return false;
+        else
+            return true;
     }
 
     private Double celsius(Double fahrenheit) {
