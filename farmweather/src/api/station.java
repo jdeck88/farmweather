@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.lang.String;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Calendar;
 
 /**
  * REST interface for calling weather station data
@@ -35,12 +36,11 @@ public class station {
         ProcessWeather w = null;
         try {
             w = new ProcessWeather(
-                    new URL("https://www.wunderground.com/weatherstation/WXDailyHistory.asp?" +
+                    new String("https://www.wunderground.com/weatherstation/WXDailyHistory.asp?" +
                             "ID=" + station +
-                            "&year=" + weather.getThisYear() +
-                            "&graphspan=year&" +
-                            "format=1"),
-                    station);
+                            "&format=1"),
+                    station, weather.getThisYear()
+                    );
         } catch (MalformedURLException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }  catch (IOException e) {
@@ -62,12 +62,11 @@ public class station {
         ProcessWeather w = null;
         try {
             w = new ProcessWeather(
-                    new URL("https://www.wunderground.com/weatherstation/WXDailyHistory.asp?" +
+                    new String("https://www.wunderground.com/weatherstation/WXDailyHistory.asp?" +
                             "ID=" + station +
-                            "&year=" + weather.getThisYear() +
-                            "&graphspan=year&" +
-                            "format=1"),
-                    station);
+                            "&format=1"),
+                    station,
+                    weather.getThisYear());
         } catch (MalformedURLException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }    catch (IOException e) {

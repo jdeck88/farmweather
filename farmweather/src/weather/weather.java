@@ -15,7 +15,7 @@ import java.util.*;
  * The weather class controls the functions of the application
  */
 public class weather {
-    private static String year = getThisYear();
+    private static Integer year = getThisYear();
 
     public weather() {
     /*  A Sample List of Stations:
@@ -31,24 +31,15 @@ public class weather {
         */
     }
 
-    public static String getThisYear() {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy");
-        java.util.Date date = new java.util.Date();
+    public static Integer getThisYear() {
 
-        String dateStr = dateFormat.format(date);
-        try {
-            Date date2 = dateFormat.parse(dateStr);
-        } catch (
-                ParseException pe) {
-            pe.printStackTrace();
-        }
-
-        return dateStr;
+       return Calendar.getInstance().get(Calendar.YEAR);
     }
 
 
     /**
      * Main function used for local testing
+     *
      * @param args
      */
     public static void main(String args[]) throws IOException {
@@ -56,10 +47,13 @@ public class weather {
         String station = "KORSPRIN10";
         String description = station;
         try {
+
             ProcessWeather w = new ProcessWeather(
-                    new URL("https://www.wunderground.com/weatherstation/WXDailyHistory.asp?ID=" + station + "&year=" + year + "&graphspan=year&format=1"),
-                    description);
-            System.out.println(w.printHTMLSummary(station,"Testing"));
+                    new String("https://www.wunderground.com/weatherstation/WXDailyHistory.asp?ID=" + station +  "&format=1"),
+                    description,
+                    year);
+
+            System.out.println(w.printHTMLSummary(station, "Testing"));
 
         } catch (MalformedURLException e) {
             System.out.println(e);

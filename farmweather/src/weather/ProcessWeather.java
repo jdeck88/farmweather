@@ -51,7 +51,27 @@ public class ProcessWeather {
         return TSUM200;
     }
 
-    public ProcessWeather(URL url, String station) throws IOException {
+
+    public Double getPrecipAll() {
+        return precipAll;
+    }
+
+    public ProcessWeather(String urlString, String station, Integer year) throws IOException {
+        URL url = new URL (urlString + "&graphspan=year&year=" + year);
+
+        // Something of a hack-- this will only work in this century!
+        // we get the 3 last months of lastYear so we can count precip for this particular water year
+        Integer lastYear = year - 1;
+        fetchData(new URL (urlString + "&graphspan=month&month=10" + "&year=" + lastYear ));
+        Double lastYearWaterOct = precipAll();
+        fetchData(new URL (urlString + "&graphspan=month&month=11" + "&year=" + lastYear ));
+        Double lastYearWaterNov = precipAll();
+        fetchData(new URL (urlString + "&graphspan=month&month=11" + "&year=" + lastYear ));
+        Double lastYearWaterDec = precipAll();
+
+        // Now run the current year
+        System.out.println(url);
+
         this.station = station;
 
         //test(url);
@@ -59,7 +79,7 @@ public class ProcessWeather {
         dateOfData = this.getDateOfData();
         TSUM200 = tSum200();
         precipLast7 = precipLast(7);
-        precipAll = precipAll();
+        precipAll = precipAll() + lastYearWaterOct + lastYearWaterNov + lastYearWaterDec;
         avgTempLast7 = averageLast(avgTempMap, 7);
         avgHighTempLast7 = averageLast(highTempMap, 7);
         tsum200ReachedDate = tSum200ReachedDate();
@@ -91,7 +111,8 @@ public class ProcessWeather {
             ret += " (reached " + tsum200ReachedDate + ")";
         }
         ret += "</li>";
-        ret += "<li>Precip Since Jan1: " + precipAll + " in.</li>";
+        ret += "<li>Precip for Water Year: " + precipAll + " in.</li>";
+        ret += "<li>Precip Since Jan1: " + precipAll() + " in.</li>";
         ret += "<li>Precip last 7 days: " + precipLast7 + " in.</li>";
         ret += "<li>Avg Temp last 7 days: " + avgTempLast7 + " deg F.</li>";
         ret += "<li>Avg High Temp last 7 days: " + avgHighTempLast7 + " deg F.</li>";
