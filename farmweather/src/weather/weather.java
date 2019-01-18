@@ -45,6 +45,7 @@ public class weather {
     public static void main(String args[]) throws IOException {
 
         String station = "KORSPRIN10";
+        station = "KORGRANT4";
         String description = station;
         try {
 
@@ -62,8 +63,8 @@ public class weather {
                                                                                                                    ;
             System.out.println(w.printHTMLSummary(station, "Testing"));
 
-        } catch (MalformedURLException e) {
-            System.out.println(e);
+        } catch (Exception e) {
+            System.out.println( "Unable to locate "+station);
         }
 
     }

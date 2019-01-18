@@ -17,20 +17,27 @@ var stations= {
 "Silverton":"KORAUMSV3",
 " -- South Coast -- ":"",
 "Myrtle Point":"KORMYRTL5",
-"Coos Bay":"KORCOOSB8",
 "Bandon ":"KORBANDO2",
-"Brookings":"KORHARBO3  ",
 " -- Douglas County -- ":"",
-"Myrtle Creek":"KORMYRTL13",
 "Riddle":"KORRIDDL2",
 "Elkton":"KORELKTO2",
-"Sutherlin":"KORSUTHE2",
-"Garden Valley (west of Roseburg)":"KORROSEB4",
-"Cottage Grove":"KORCOTTA5",
 " -- Southern Oregon --":"",
-"Grants Pass":"KORGRANT4",
 "White City":"KORWHITE4",
 };
+//bad sites
+//"Coos Bay":"KORCOOSB8",
+//"Brookings":"KORHARBO3  ",
+//"Myrtle Creek":"KORMYRTL13",
+//"Sutherlin":"KORSUTHE2",
+//"Garden Valley (west of Roseburg)":"KORROSEB4",
+//"Cottage Grove":"KORCOTTA5",
+//"Grants Pass":"KORGRANT4",
+
+
+
+
+
+
 for (var text in stations) {
     var val = stations[text];
     $('<option/>').val(val).text(text).appendTo($('#selector'))

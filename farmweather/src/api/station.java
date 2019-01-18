@@ -48,10 +48,9 @@ public class station {
                     weather.getThisYear(),
                     metadata
             );
-        } catch (MalformedURLException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            //e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            return "Unable to locate "+station;
         }
         return w.printHTMLSummary(station, description);
     }
