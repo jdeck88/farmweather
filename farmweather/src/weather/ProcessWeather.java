@@ -124,7 +124,7 @@ public class ProcessWeather {
         if (remainingInvalid > 0) {
             ret += "<li>*" + remainingInvalid + " days were invalid that we could not fill in values for -- data will be off!</li>";
         }
-        ret += "<li>" + metaData.lat + "/" + metaData.lon;
+        ret += "<li>Lat/Lon:" + metaData.lat + "/" + metaData.lon;
 
 
         // ret += "<li onclick=\"var newWindow = window.open('http://www.wunderground.com/weatherstation/WXDailyHistory.asp?&graphspan=year&ID=" +
