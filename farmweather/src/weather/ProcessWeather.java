@@ -43,6 +43,7 @@ public class ProcessWeather {
     private static final int AVGTEMP = 2;
     private static final int DATE = 0;
 
+    private StationMetaData metaData = null;
     public String getStation() {
         return station;
     }
@@ -56,26 +57,26 @@ public class ProcessWeather {
         return precipAll;
     }
 
-    public ProcessWeather(String urlString, String station, Integer year) throws IOException {
+    public ProcessWeather(String urlString, String station, Integer year, StationMetaData metaData) throws IOException {
         URL url = new URL (urlString + "&graphspan=year&year=" + year);
-
+        this.metaData = metaData;
         // Something of a hack-- this will only work in this century!
         // we get the 3 last months of lastYear so we can count precip for this particular water year
         Integer lastYear = year - 1;
-        fetchData(new URL (urlString + "&graphspan=month&month=10" + "&year=" + lastYear ));
+        fetchData(new URL (urlString + "&graphspan=month&month=10" + "&year=" + lastYear ),false);
         Double lastYearWaterOct = precipAll();
-        fetchData(new URL (urlString + "&graphspan=month&month=11" + "&year=" + lastYear ));
+        fetchData(new URL (urlString + "&graphspan=month&month=11" + "&year=" + lastYear ),false);
         Double lastYearWaterNov = precipAll();
-        fetchData(new URL (urlString + "&graphspan=month&month=11" + "&year=" + lastYear ));
+        fetchData(new URL (urlString + "&graphspan=month&month=12" + "&year=" + lastYear ),false);
         Double lastYearWaterDec = precipAll();
-
-        // Now run the current year
-        System.out.println(url);
 
         this.station = station;
 
-        //test(url);
-        fetchData(url);
+        // Get data for this year... we set degreeDayMap to true so we can start updating those values
+        fetchData(url,true);
+
+        // clean up degreeDayMap
+
         dateOfData = this.getDateOfData();
         TSUM200 = tSum200();
         precipLast7 = precipLast(7);
@@ -123,6 +124,7 @@ public class ProcessWeather {
         if (remainingInvalid > 0) {
             ret += "<li>*" + remainingInvalid + " days were invalid that we could not fill in values for -- data will be off!</li>";
         }
+        ret += "<li>" + metaData.lat + "/" + metaData.lon;
 
 
         // ret += "<li onclick=\"var newWindow = window.open('http://www.wunderground.com/weatherstation/WXDailyHistory.asp?&graphspan=year&ID=" +
@@ -188,10 +190,10 @@ public class ProcessWeather {
         Iterator it = degreedayMap.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pairs = (Map.Entry) it.next();
-            //String date = (String) pairs.getKey();
+            String date = (String) pairs.getKey();
             Double degreeday = (Double) pairs.getValue();
             count += degreeday;
-            //System.out.println(date + "    " + degreeday);
+            System.out.println(date + "    " + degreeday);
         }
         return round2(count);
     }
@@ -306,7 +308,7 @@ public class ProcessWeather {
      *
      * @throws IOException
      */
-    private void fetchData(URL url) throws IOException {
+    private void fetchData(URL url, Boolean degreeDayMap) throws IOException {
 
         System.out.println(url.toString());
 
@@ -380,15 +382,17 @@ public class ProcessWeather {
                                 cal = Calendar.getInstance();
                                 cal.add(Calendar.DATE, datecounter);
                                 String thisdate = dateFormat.format(cal.getTime());
-                                degreedayMap.put(thisdate, validDegreeDay);
+                                if (degreeDayMap)
+                                    degreedayMap.put(thisdate, validDegreeDay);
                                 precipMap.put(thisdate, validPrecip);
                                 avgTempMap.put(thisdate, validAvgtemp);
                                 highTempMap.put(thisdate, validHigh);
 
                             }
                         }
-                        // now put the current date in
-                        degreedayMap.put(date, degreeday);
+                        // Update our maps
+                        if (degreeDayMap)
+                            degreedayMap.put(date, degreeday);
                         precipMap.put(date, precip);
                         avgTempMap.put(date, avgtemp);
                         highTempMap.put(date, highTemp);

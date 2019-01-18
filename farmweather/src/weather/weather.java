@@ -48,11 +48,18 @@ public class weather {
         String description = station;
         try {
 
+            StationMetaData metadata = new StationMetaData(
+                    new String("https://stationdata.wunderground.com/cgi-bin/stationdata?format=json&station=" + station),
+                    station
+            );
+
             ProcessWeather w = new ProcessWeather(
                     new String("https://www.wunderground.com/weatherstation/WXDailyHistory.asp?ID=" + station +  "&format=1"),
                     description,
-                    year);
+                    year,
+                    metadata);
 
+                                                                                                                   ;
             System.out.println(w.printHTMLSummary(station, "Testing"));
 
         } catch (MalformedURLException e) {

@@ -3,6 +3,7 @@ package api;
 
 import weather.ProcessWeather;
 import weather.weather;
+import weather.StationMetaData;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -24,8 +25,8 @@ public class station {
     }
 
     /**
-     *
      * @param station
+     *
      * @return String with HTML response
      */
     @GET
@@ -35,23 +36,29 @@ public class station {
                               @PathParam("description") String description) {
         ProcessWeather w = null;
         try {
+            StationMetaData metadata = new StationMetaData(
+                    new String("https://stationdata.wunderground.com/cgi-bin/stationdata?format=json&station=" + station),
+                    station
+            );
             w = new ProcessWeather(
                     new String("https://www.wunderground.com/weatherstation/WXDailyHistory.asp?" +
                             "ID=" + station +
                             "&format=1"),
-                    station, weather.getThisYear()
-                    );
+                    station,
+                    weather.getThisYear(),
+                    metadata
+            );
         } catch (MalformedURLException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }  catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        return  w.printHTMLSummary(station,description);
+        return w.printHTMLSummary(station, description);
     }
 
     /**
-     *
      * @param station
+     *
      * @return String with XML response
      */
     @GET
@@ -61,18 +68,24 @@ public class station {
                              @PathParam("description") String description) {
         ProcessWeather w = null;
         try {
+            StationMetaData metadata = new StationMetaData(
+                    new String("https://stationdata.wunderground.com/cgi-bin/stationdata?format=json&station=" + station),
+                    station
+            );
             w = new ProcessWeather(
                     new String("https://www.wunderground.com/weatherstation/WXDailyHistory.asp?" +
                             "ID=" + station +
                             "&format=1"),
                     station,
-                    weather.getThisYear());
+                    weather.getThisYear(),
+                    metadata
+            );
         } catch (MalformedURLException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }    catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        return w.printXMLSummary(station,description);
+        return w.printXMLSummary(station, description);
     }
 
 }
