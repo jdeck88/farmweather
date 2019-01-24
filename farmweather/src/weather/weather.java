@@ -45,7 +45,7 @@ public class weather {
     public static void main(String args[]) throws IOException {
 
         String station = "KORSPRIN10";
-        station = "KORGRANT4";
+        station = "KORROSEB24";
         String description = station;
         try {
 
