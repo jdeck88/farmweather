@@ -86,6 +86,12 @@ public class ProcessWeather {
         tsum200ReachedDate = tSum200ReachedDate();
     }
 
+    public HashMap<String, Double> getDegreedayMap() {
+        return degreedayMap;
+    }
+    public HashMap<String, Double> getHighTempMap() {
+          return highTempMap;
+      }
     public String printXMLSummary(String id, String description) {
         String xmlResults = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
                 "<Module>\n" +
@@ -193,7 +199,8 @@ public class ProcessWeather {
             String date = (String) pairs.getKey();
             Double degreeday = (Double) pairs.getValue();
             count += degreeday;
-            System.out.println(date + "    " + degreeday);
+            //
+            // System.out.println(date + "    " + degreeday);
         }
         return round2(count);
     }
@@ -310,7 +317,7 @@ public class ProcessWeather {
      */
     private void fetchData(URL url, Boolean degreeDayMap) throws IOException {
 
-        System.out.println(url.toString());
+        //System.out.println(url.toString());
 
         CSVReader reader = null;
 
@@ -346,6 +353,8 @@ public class ProcessWeather {
                         Double precip = Double.parseDouble(nextLine[PRECIP]);
                         Double avgtemp = Double.parseDouble(nextLine[AVGTEMP]);
                         Double degreeday = degreeday(highCelsiusTemp, lowCelsiusTemp);
+
+                        System.out.println(degreeday +","+dateOfData+","+highCelsiusTemp+","+lowCelsiusTemp);
 
                         if (isValid(nextLine)) {
                             // store valid values for use on next line if it is not valid

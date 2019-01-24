@@ -19,7 +19,7 @@ public class StationMetaData  {
     }
     private void fetchData(URL url, String station) throws IOException {
 
-        System.out.println(url.toString());
+        //System.out.println(url.toString());
 
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));

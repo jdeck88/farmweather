@@ -33,7 +33,7 @@ public class weather {
 
     public static Integer getThisYear() {
 
-       return Calendar.getInstance().get(Calendar.YEAR);
+        return Calendar.getInstance().get(Calendar.YEAR);
     }
 
 
@@ -45,7 +45,7 @@ public class weather {
     public static void main(String args[]) throws IOException {
 
         String station = "KORSPRIN10";
-        station = "KORROSEB24";
+        //station = "KORROSEB24";
         String description = station;
         try {
 
@@ -55,16 +55,30 @@ public class weather {
             );
 
             ProcessWeather w = new ProcessWeather(
-                    new String("https://www.wunderground.com/weatherstation/WXDailyHistory.asp?ID=" + station +  "&format=1"),
+                    new String("https://www.wunderground.com/weatherstation/WXDailyHistory.asp?ID=" + station + "&format=1"),
                     description,
                     year,
                     metadata);
 
-                                                                                                                   ;
-            System.out.println(w.printHTMLSummary(station, "Testing"));
+            ;
+            System.out.println(w.printTable());
 
+            // print degree day map
+            /*Iterator it = w.getDegreedayMap().entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry pair = (Map.Entry) it.next();
+                System.out.println(pair.getKey() + "=" + pair.getValue());
+                it.remove();
+            }
+            // print highttemp map
+            Iterator it2 = w.getHighTempMap().entrySet().iterator();
+            while (it2.hasNext()) {
+                Map.Entry pair = (Map.Entry) it2.next();
+                System.out.println(pair.getKey() + "=" + pair.getValue());
+                it2.remove();
+            }    */
         } catch (Exception e) {
-            System.out.println( "Unable to locate "+station);
+            System.out.println("Unable to locate " + station);
         }
 
     }
