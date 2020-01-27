@@ -44,7 +44,8 @@ public class weather {
      */
     public static void main(String args[]) throws IOException {
 
-        String station = "KORSPRIN10";
+        String station = "KORTURNE1";
+        //station ="KORDALLA4";
         //station = "KORROSEB24";
         String description = station;
         try {
@@ -61,7 +62,9 @@ public class weather {
                     metadata);
 
             ;
-            System.out.println(w.printTable());
+            //System.out.println(year);
+            //System.out.println(metadata);
+            System.out.println(w.printHTMLSummary(station, description));
 
             // print degree day map
             /*Iterator it = w.getDegreedayMap().entrySet().iterator();

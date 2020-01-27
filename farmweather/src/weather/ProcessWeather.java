@@ -35,6 +35,7 @@ public class ProcessWeather {
     private String tsum200ReachedDate;
     private int remainingInvalid = 0;
     private int numDaysInvalid = 0;
+    private int lastYearMonthsInvalid = 0;
 
 
     private static final int HIGHTEMP = 1;
@@ -44,6 +45,7 @@ public class ProcessWeather {
     private static final int DATE = 0;
 
     private StationMetaData metaData = null;
+
     public String getStation() {
         return station;
     }
@@ -58,29 +60,47 @@ public class ProcessWeather {
     }
 
     public ProcessWeather(String urlString, String station, Integer year, StationMetaData metaData) throws IOException {
-        URL url = new URL (urlString + "&graphspan=year&year=" + year);
+        URL url = new URL(urlString + "&graphspan=year&year=" + year);
         this.metaData = metaData;
-        // Something of a hack-- this will only work in this century!
+
+      /*  // Something of a hack-- this will only work in this century!
         // we get the 3 last months of lastYear so we can count precip for this particular water year
         Integer lastYear = year - 1;
-        fetchData(new URL (urlString + "&graphspan=month&month=10" + "&year=" + lastYear ),false);
-        Double lastYearWaterOct = precipAll();
-        fetchData(new URL (urlString + "&graphspan=month&month=11" + "&year=" + lastYear ),false);
-        Double lastYearWaterNov = precipAll();
-        fetchData(new URL (urlString + "&graphspan=month&month=12" + "&year=" + lastYear ),false);
-        Double lastYearWaterDec = precipAll();
+        Double lastYearWaterOct = 0.0;
+        try {
+            fetchData(new URL(urlString + "&graphspan=month&month=10" + "&year=" + lastYear), false);
+            lastYearWaterOct = precipAll();
+        } catch (Exception e) {
+            lastYearMonthsInvalid++;
+        }
 
+        Double lastYearWaterNov = 0.0;
+        try {
+            fetchData(new URL(urlString + "&graphspan=month&month=11" + "&year=" + lastYear), false);
+            lastYearWaterNov = precipAll();
+        } catch (Exception e) {
+            lastYearMonthsInvalid++;
+        }
+
+        Double lastYearWaterDec = 0.0;
+        try {
+            fetchData(new URL(urlString + "&graphspan=month&month=12" + "&year=" + lastYear), false);
+            lastYearWaterDec = precipAll();
+        } catch (Exception e) {
+            lastYearMonthsInvalid++;
+        }
+          */
         this.station = station;
 
         // Get data for this year... we set degreeDayMap to true so we can start updating those values
-        fetchData(url,true);
+        fetchData(url, true);
 
         // clean up degreeDayMap
 
         dateOfData = this.getDateOfData();
         TSUM200 = tSum200();
         precipLast7 = precipLast(7);
-        precipAll = precipAll() + lastYearWaterOct + lastYearWaterNov + lastYearWaterDec;
+       // precipAll = precipAll() + lastYearWaterOct + lastYearWaterNov + lastYearWaterDec;
         avgTempLast7 = averageLast(avgTempMap, 7);
         avgHighTempLast7 = averageLast(highTempMap, 7);
         tsum200ReachedDate = tSum200ReachedDate();
@@ -89,9 +109,11 @@ public class ProcessWeather {
     public HashMap<String, Double> getDegreedayMap() {
         return degreedayMap;
     }
+
     public HashMap<String, Double> getHighTempMap() {
-          return highTempMap;
-      }
+        return highTempMap;
+    }
+
     public String printXMLSummary(String id, String description) {
         String xmlResults = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
                 "<Module>\n" +
@@ -119,7 +141,7 @@ public class ProcessWeather {
         }
         ret += "</li>";
         ret += "<li>Precip for Water Year: " + precipAll + " in.</li>";
-        ret += "<li>Precip Since Jan1: " + precipAll() + " in.</li>";
+        //ret += "<li>Precip Since Jan1: " + precipAll() + " in.</li>";
         ret += "<li>Precip last 7 days: " + precipLast7 + " in.</li>";
         ret += "<li>Avg Temp last 7 days: " + avgTempLast7 + " deg F.</li>";
         ret += "<li>Avg High Temp last 7 days: " + avgHighTempLast7 + " deg F.</li>";
@@ -129,6 +151,9 @@ public class ProcessWeather {
         }
         if (remainingInvalid > 0) {
             ret += "<li>*" + remainingInvalid + " days were invalid that we could not fill in values for -- data will be off!</li>";
+        }
+        if (lastYearMonthsInvalid > 0) {
+            ret += "<li>*" + lastYearMonthsInvalid + " Some months from prior year counting did not compute.  Prior water year figure will be off.</li>";
         }
         ret += "<li>Lat/Lon:" + metaData.lat + "/" + metaData.lon;
 
@@ -317,7 +342,7 @@ public class ProcessWeather {
      */
     private void fetchData(URL url, Boolean degreeDayMap) throws IOException {
 
-        //System.out.println(url.toString());
+        System.out.println(url.toString());
 
         CSVReader reader = null;
 
@@ -328,10 +353,10 @@ public class ProcessWeather {
         }
 
         String[] nextLine;
-        Double validDegreeday =0.0;
-        Double validAvgtemp =0.0;
-        Double validLow =0.0;
-        Double validHigh =0.0;
+        Double validDegreeday = 0.0;
+        Double validAvgtemp = 0.0;
+        Double validLow = 0.0;
+        Double validHigh = 0.0;
         Double validPrecip = 0.0;
         Double validDegreeDay = 0.0;
         int invalid = 0;
@@ -354,7 +379,7 @@ public class ProcessWeather {
                         Double avgtemp = Double.parseDouble(nextLine[AVGTEMP]);
                         Double degreeday = degreeday(highCelsiusTemp, lowCelsiusTemp);
 
-                        System.out.println(degreeday +","+dateOfData+","+highCelsiusTemp+","+lowCelsiusTemp);
+                        //System.out.println(degreeday +","+dateOfData+","+highCelsiusTemp+","+lowCelsiusTemp);
 
                         if (isValid(nextLine)) {
                             // store valid values for use on next line if it is not valid
@@ -407,6 +432,9 @@ public class ProcessWeather {
                         highTempMap.put(date, highTemp);
 
                         invalid = 0;
+                    } else {
+                        // invalid if it is an empty row
+                        numDaysInvalid++;
                     }
 
                 } catch (ArrayIndexOutOfBoundsException e) {
@@ -439,7 +467,8 @@ public class ProcessWeather {
                 Double.parseDouble(row[LOWTEMP]) < -100) {
             return false;
         }
-        return true;
+
+            return true;
     }
 
     /**
